@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project specific
+.env
+*.db
+*.log
+logs/
+temp/
+cache/
+
+# OCR outputs
+bunko_ocr_outputs/
+ocr_results/
+*.pdf
+*.png
+*.jpg
+*.jpeg
+
+# Excel temporary files
+~$*.xlsx
+*.tmp
+
+# Backup files
+*_backup_*
+*_corrupted*
+
+# Google Cloud credentials
+credentials/
+*.json

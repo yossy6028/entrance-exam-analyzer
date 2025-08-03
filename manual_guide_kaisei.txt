@@ -1,0 +1,19 @@
+【bunkoOCRで開成中2025年を処理する手順】
+
+1. bunkoOCRアプリケーションで：
+   - 「ファイルから選択」をクリック
+   - または、タブキー → 上矢印5回 → 下矢印2回 → Enter
+
+2. ファイルダイアログで：
+   - Cmd + Shift + G を押す
+   - 以下のパスをペースト：
+   /Users/yoshiikatsuhiko/Desktop/01_仕事 (Work)/オンライン家庭教師資料/過去問/開成中学校/2025年開成中学校問題_国語.pdf
+   - Enterキーを2回押す
+
+3. OCR処理が自動で開始されます（2-3分待機）
+
+4. 処理完了後、以下のコマンドを実行：
+   cd /Users/yoshiikatsuhiko/entrance_exam_analyzer
+   python check_latest_bunko_result.py
+
+これで開成中2025年の分析が完了します。
