@@ -13,6 +13,12 @@ logger = logging.getLogger(__name__)
 class TextAnalyzer:
     """テキスト分析クラス"""
     
+    # 定数定義（マジックナンバーの除去）
+    MIN_SECTION_DISTANCE = 500  # セクション間の最小文字数
+    MIN_SECTION_CONTENT = 50    # 有効なセクションの最小文字数
+    MIN_QUESTION_DISTANCE = 30  # 設問間の最小文字数
+    MIN_VALID_SECTION_SIZE = 200  # 有効なセクションの最小サイズ
+    
     def __init__(self, question_patterns: Dict[str, List[str]]):
         """
         初期化
@@ -87,6 +93,8 @@ class TextAnalyzer:
             (r'([一二三四五六七八九十])、次の文章を読んで', 'main_section_comma'),
             # 「二 次の文章を読んで」パターン（スペース区切り）
             (r'([一二三四五六七八九十])\s+次の文章を読んで', 'main_section_space'),
+            # 「次の文章を読んであとの質問に答えなさい。」パターン（武蔵形式）
+            (r'次の文章を読んであとの質問に答えなさい', 'musashi_pattern'),
             # 「第一問」などのパターン
             (r'(?:^|\n)\s*第([一二三四五六七八九十]+)問', 'dai_mon'),
         ]
@@ -95,13 +103,23 @@ class TextAnalyzer:
         all_matches = []
         for pattern, p_type in section_patterns:
             for match in re.finditer(pattern, text, re.MULTILINE):
-                all_matches.append({
-                    'start': match.start(),
-                    'end': match.end(),
-                    'marker': match.group(0).strip(),
-                    'type': p_type,
-                    'number_text': match.group(1)
-                })
+                # 武蔵パターンには漢数字がないため、別途処理
+                if p_type == 'musashi_pattern':
+                    all_matches.append({
+                        'start': match.start(),
+                        'end': match.end(),
+                        'marker': match.group(0).strip(),
+                        'type': p_type,
+                        'number_text': None  # 武蔵パターンには番号がない
+                    })
+                else:
+                    all_matches.append({
+                        'start': match.start(),
+                        'end': match.end(),
+                        'marker': match.group(0).strip(),
+                        'type': p_type,
+                        'number_text': match.group(1)
+                    })
         
         # 位置でソート
         all_matches.sort(key=lambda x: x['start'])
@@ -117,17 +135,17 @@ class TextAnalyzer:
         }
         
         for match in all_matches:
-            # 前のマッチと近すぎる場合はスキップ
-            if match['start'] - prev_pos < 500:  # 500文字以上離れていること
+            # 前のマッチと近すぎる場合はスキップ（最初のマッチは除く）
+            if prev_pos != -1 and match['start'] - prev_pos < self.MIN_SECTION_DISTANCE:  # 500文字以上離れていること
                 continue
                 
             # 大問の後に十分なテキストがあることを確認
-            remaining_text = text[match['end']:match['end']+500] if match['end']+500 < len(text) else text[match['end']:]
-            if len(remaining_text.strip()) < 50:  # 最低50文字のコンテンツ
+            remaining_text = text[match['end']:match['end']+self.MIN_SECTION_DISTANCE] if match['end']+self.MIN_SECTION_DISTANCE < len(text) else text[match['end']:]
+            if len(remaining_text.strip()) < self.MIN_SECTION_CONTENT:  # 最低50文字のコンテンツ
                 continue
                 
-            # 「次の文章を読んで」タイプを優先
-            if match['type'] in ['main_section_comma', 'main_section_space']:
+            # 「次の文章を読んで」タイプを優先（武蔵パターンも含む）
+            if match['type'] in ['main_section_comma', 'main_section_space', 'musashi_pattern']:
                 selected_matches.append(match)
                 prev_pos = match['start']
             # 文章が含まれていることを確認
@@ -141,7 +159,12 @@ class TextAnalyzer:
             section_end = selected_matches[i + 1]['start'] if i + 1 < len(selected_matches) else len(text)
             
             section_text = text[section_start:section_end]
-            number = kanji_to_num.get(match['number_text'], i + 1)
+            
+            # 番号の決定（武蔵パターンの場合は連番）
+            if match['number_text'] is None:
+                number = i + 1
+            else:
+                number = kanji_to_num.get(match['number_text'], i + 1)
             
             sections.append({
                 'number': number,
@@ -165,7 +188,7 @@ class TextAnalyzer:
             有効な場合True
         """
         # 最低文字数チェック
-        if len(text.strip()) < 200:
+        if len(text.strip()) < self.MIN_VALID_SECTION_SIZE:
             return False
             
         # 文章の存在を示すキーワード
@@ -197,7 +220,10 @@ class TextAnalyzer:
             r'(?:^|\n|\s)[［\[]{1}([０-９0-9]+)[］\]]{1}[^\w]',  # [1]、[2]など
             r'(?:^|\n|\s)設問([０-９0-9]+)[^\w]',  # 設問1など
             r'([①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮])',  # 丸数字
-            r'(?:^|\n|\s)[ア-ン]\s*[．。、]'  # ア．イ．など
+            r'(?:^|\n|\s)[ア-ン]\s*[．。、]',  # ア．イ．など
+            # 武蔵特有のパターン
+            r'(?:^|\n)\s{0,3}[1-9]\s*[^\d]',  # 行頭の数字（1桁）
+            r'(?:^|\n)\s{0,3}1[0-9]\s*[^\d]',  # 行頭の数字（10番台）
         ]
         
         # すべてのマッチを収集
@@ -215,7 +241,7 @@ class TextAnalyzer:
         
         for start, end, marker in all_matches:
             # 前のマッチと近すぎる場合はスキップ
-            if start - prev_pos < 30:  # 30文字以上離れていること
+            if start - prev_pos < self.MIN_QUESTION_DISTANCE:  # 30文字以上離れていること
                 continue
                 
             # 「間口は三間一尺」のような文章中の「間」を除外

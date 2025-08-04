@@ -40,14 +40,37 @@ class PatternExtractor:
         }
         
         # 各パターンで検索
-        for pattern in self.source_patterns:
+        for i, pattern in enumerate(self.source_patterns):
             match = pattern.search(text)
             if match:
                 groups = match.groups()
-                if len(groups) >= 2:
+                matched_text = match.group(0)
+                
+                # 武蔵特有のパターン処理
+                if 'の文による' in matched_text:
+                    # （新美南吉の文による）形式
+                    result['author'] = groups[0].strip() if groups else None
+                    result['raw_source'] = matched_text
+                elif '『' in matched_text and '』' in matched_text:
+                    # 作品名が含まれる場合
+                    if len(groups) >= 2:
+                        result['title'] = groups[0].strip()
+                        result['author'] = groups[1].strip()
+                    elif len(groups) >= 1:
+                        result['title'] = groups[0].strip()
+                    result['raw_source'] = matched_text
+                elif len(groups) >= 2:
+                    # 標準的な2要素パターン
                     result['author'] = groups[0].strip()
                     result['title'] = groups[1].strip()
-                    result['raw_source'] = match.group(0)
+                    result['raw_source'] = matched_text
+                elif len(groups) >= 1:
+                    # 1要素のみの場合
+                    result['author'] = groups[0].strip()
+                    result['raw_source'] = matched_text
+                    
+                # 有効な情報が抽出できた場合は終了
+                if result['author'] or result['title']:
                     break
                     
         # 追加の情報抽出

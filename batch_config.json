@@ -1,0 +1,45 @@
+{
+  "batch_processing": {
+    "parallel_mode": true,
+    "max_workers": 4,
+    "timeout_seconds": 60,
+    "auto_detect_groups": true,
+    "file_patterns": {
+      "bunko_ocr": "text*.txt",
+      "general": "*.txt"
+    }
+  },
+  "school_mappings": {
+    "渋渋": "渋谷教育学園渋谷中学校",
+    "慶應": "慶應義塾中等部",
+    "早実": "早稲田実業学校中等部",
+    "開成": "開成中学校",
+    "麻布": "麻布中学校",
+    "武蔵": "武蔵中学校",
+    "桜蔭": "桜蔭中学校",
+    "女子学院": "女子学院中学校",
+    "雙葉": "雙葉中学校"
+  },
+  "year_mappings": {
+    "令和元年": "2019",
+    "令和2年": "2020",
+    "令和3年": "2021",
+    "令和4年": "2022",
+    "令和5年": "2023",
+    "令和6年": "2024",
+    "平成30年": "2018",
+    "平成31年": "2019"
+  },
+  "processing_options": {
+    "skip_existing": false,
+    "update_mode": "replace",
+    "verify_before_save": true,
+    "create_backup": true
+  },
+  "report_options": {
+    "generate_summary": true,
+    "include_errors": true,
+    "export_format": "txt",
+    "save_path": "./reports/"
+  }
+}

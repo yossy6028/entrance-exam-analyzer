@@ -4,28 +4,58 @@ __pycache__/
 *$py.class
 *.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
 venv/
 ENV/
 env/
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
+.venv
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
 
 # Project specific
 .env
+.env.local
 *.db
 *.log
 logs/
 temp/
 cache/
+data/output/
+data/backups/
+*.xlsx
+*.xls
+*.csv
+!requirements.txt
+!entrance_exam_database.xlsx
 
 # OCR outputs
 bunko_ocr_outputs/
@@ -45,4 +75,13 @@ ocr_results/
 
 # Google Cloud credentials
 credentials/
-*.json
+*credentials.json
+*service-account*.json
+
+# Test coverage
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Custom plugins (keep directory but ignore private files)
+plugins/custom_plugins/*_private.py

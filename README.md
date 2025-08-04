@@ -1,94 +1,157 @@
-# 国語入試問題分析システム
+# 入試問題テキスト分析システム
 
-中学入試の国語問題（縦書きPDF）から出題傾向と出典情報を自動的に抽出・分析するシステムです。
+国語の入試問題テキストを自動分析し、出題傾向や出典情報を抽出するPythonアプリケーションです。
 
-## 機能
+## 特徴
 
-- **出題傾向分析**: 大問数、設問数、設問タイプの分類
-- **出典情報抽出**: 著者名、作品タイトルの自動抽出
-- **解答用紙分析**: 配点、解答形式の分析（オプション）
-- **Excel出力**: 分析結果を見やすくExcel形式で出力
-- **バッチ処理**: 複数ファイルの一括処理
+- 📝 **テキストベース分析**: テキストファイルから入試問題を分析
+- 🏫 **学校別対応**: プラグインシステムによる学校別カスタマイズ
+- 📊 **Excel出力**: 分析結果を構造化されたExcelファイルに保存
+- 🔍 **自動検出**: 学校名と年度を自動検出
+- 🎯 **バッチ処理**: 複数ファイルの一括分析
 
-## セットアップ
-
-### 1. 必要なパッケージのインストール
+## インストール
 
 ```bash
+# リポジトリのクローン
+git clone https://github.com/yourusername/entrance-exam-analyzer.git
+cd entrance-exam-analyzer
+
+# 依存関係のインストール
 pip install -r requirements.txt
 ```
 
-### 2. Google Cloud Vision APIの設定
+## 使用方法
 
-1. Google Cloud Consoleでプロジェクトを作成
-2. Vision APIを有効化
-3. サービスアカウントキーを作成してダウンロード
-4. 環境変数を設定:
-
+### 対話モード
 ```bash
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account-key.json"
+python3 main.py
 ```
 
-または `.env` ファイルを作成:
-
+### ファイル直接指定
 ```bash
-cp .env.example .env
-# .envファイルを編集して認証情報のパスを設定
-```
-
-## 使い方
-
-### 単一ファイルの分析
-
-```bash
-python main.py /path/to/exam.pdf --school "麻布中学校" --year "2025"
-```
-
-### 解答用紙も含めた分析
-
-```bash
-python main.py /path/to/exam.pdf --answer /path/to/answer.pdf
+python3 main.py sample.txt
 ```
 
 ### バッチ処理
-
 ```bash
-python main.py /path/to/pdf_directory --batch
+python3 main.py --batch *.txt
 ```
 
-## コマンドラインオプション
+### コマンドラインオプション
+```bash
+# プラグイン一覧を表示
+python3 main.py --list-plugins
 
-- `input_path`: 分析対象のPDFファイルまたはディレクトリ（必須）
-- `--answer`: 解答用紙のPDFファイル
-- `--school`: 学校名
-- `--year`: 年度
-- `--credentials`: Google Cloud認証情報のパス
-- `--batch`: バッチ処理モード
+# サポート学校一覧を表示
+python3 main.py --list-schools
 
-## 出力
+# データベースを検証
+python3 main.py --validate-db
 
-分析結果は以下の形式でExcelファイルに出力されます：
+# サマリーレポートを出力
+python3 main.py --export-summary
+```
 
-- **サマリーシート**: 基本情報、設問タイプ別集計
-- **詳細分析シート**: 各設問の詳細情報
-- **出典一覧シート**: 各大問の出典情報
-
-## ディレクトリ構成
+## システム構成
 
 ```
 entrance_exam_analyzer/
-├── main.py                 # メインプログラム
-├── config.py              # 設定ファイル
-├── requirements.txt       # 依存パッケージ
-├── modules/              # 各種モジュール
-├── data/
-│   ├── input/           # 入力PDFフォルダ
-│   └── output/          # 出力フォルダ
-└── logs/                # ログフォルダ
+├── core/                   # コアアプリケーション
+│   ├── application.py     # メインアプリケーションロジック
+│   └── cli.py            # CLIインターフェース
+├── modules/               # 機能モジュール
+│   ├── year_detector.py  # 年度検出
+│   ├── school_detector.py # 学校名検出
+│   ├── file_selector.py  # ファイル選択
+│   ├── excel_manager.py  # Excel操作
+│   └── text_analyzer.py  # テキスト分析
+├── plugins/               # プラグインシステム
+│   ├── base.py           # ベースクラス
+│   ├── loader.py         # プラグインローダー
+│   ├── musashi_plugin.py # 武蔵中学校用
+│   ├── kaisei_plugin.py  # 開成中学校用
+│   └── ouin_plugin.py    # 桜蔭中学校用
+├── config/                # 設定
+│   └── settings.py       # アプリケーション設定
+├── models.py              # データモデル
+├── exceptions.py          # カスタム例外
+└── utils/                 # ユーティリティ
+    ├── text_utils.py     # テキスト処理
+    ├── file_utils.py     # ファイル操作
+    └── display_utils.py  # 表示機能
 ```
 
-## 注意事項
+## 分析機能
 
-- Google Cloud Vision APIは月1000枚まで無料、それ以降は有料
-- OCR精度は100%ではないため、重要な情報は手動確認を推奨
-- 極端に画質が悪いPDFは処理できない場合があります
+### 検出項目
+- **学校名**: ファイル名やテキスト内容から自動検出
+- **年度**: 西暦、令和、平成、2桁年度に対応
+- **大問構造**: セクションマーカーを認識
+- **設問タイプ**: 記述、選択、漢字・語句、抜き出し
+- **出典情報**: 著者名、作品名、出版社
+- **テーマ・ジャンル**: AIによる自動推定
+
+### 対応学校（プラグイン）
+- 武蔵中学校
+- 開成中学校
+- 桜蔭中学校
+- 麻布中学校
+- その他（汎用プラグイン）
+
+## カスタムプラグインの作成
+
+新しい学校に対応するプラグインを作成できます：
+
+```python
+# plugins/custom_school_plugin.py
+from plugins.base import SchoolAnalyzerPlugin, PluginInfo
+
+class CustomSchoolPlugin(SchoolAnalyzerPlugin):
+    def get_plugin_info(self) -> PluginInfo:
+        return PluginInfo(
+            name="Custom School Analyzer",
+            version="1.0.0",
+            school_names=["カスタム中学校"],
+            description="カスタム中学校用プラグイン"
+        )
+    
+    # 必要なメソッドを実装
+```
+
+## データベース構造
+
+分析結果はExcelファイルに保存されます：
+- 1シート = 1学校
+- 各シートには複数年度のデータを時系列で格納
+
+### 保存される情報
+- 年度
+- 総文字数、総設問数、大問数
+- 大問別の詳細（ジャンル、テーマ、著者、作品）
+- 設問タイプ別の集計
+
+## 開発
+
+### 必要環境
+- Python 3.8以上
+- pandas
+- openpyxl
+- その他依存関係は`requirements.txt`参照
+
+### テスト実行
+```bash
+pytest tests/
+```
+
+## ライセンス
+
+MIT License
+
+## 作成者
+
+Entrance Exam Analyzer Team
+
+## 貢献
+
+プルリクエストを歓迎します。大きな変更の場合は、まずissueを開いて変更内容を議論してください。
