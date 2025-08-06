@@ -84,8 +84,10 @@ class ExcelManager:
             data[f'大問{i}_テーマ'] = [result.theme or '']
             data[f'大問{i}_著者'] = [source.author if source else '']
             data[f'大問{i}_作品'] = [source.title if source else '']
-            data[f'大問{i}_設問数'] = [len(section.questions)]
-            data[f'大問{i}_文字数'] = [len(section.text)]
+            data[f'大問{i}_設問数'] = [section.question_count if hasattr(section, 'question_count') else len(section.questions)]
+            # textまたはcontentから文字数を取得
+            text_content = section.text if section.text is not None else section.content
+            data[f'大問{i}_文字数'] = [len(text_content) if text_content else 0]
         
         # 設問タイプ別集計
         for q_type, count in result.question_types.items():

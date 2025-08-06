@@ -106,6 +106,32 @@ def ensure_directory_exists(directory: Path) -> bool:
         return False
 
 
+def clean_path_string(path_string: str) -> str:
+    """
+    パス文字列をクリーンアップ
+    
+    Args:
+        path_string: クリーンアップ対象のパス文字列
+    
+    Returns:
+        クリーンアップされたパス文字列
+    """
+    # 前後の空白を削除
+    cleaned = path_string.strip()
+    
+    # 前後の引用符を削除
+    if (cleaned.startswith('"') and cleaned.endswith('"')) or \
+       (cleaned.startswith("'") and cleaned.endswith("'")):
+        cleaned = cleaned[1:-1]
+    
+    # バックスラッシュエスケープされたスペースと括弧を処理
+    cleaned = cleaned.replace('\\ ', ' ')
+    cleaned = cleaned.replace('\\(', '(')
+    cleaned = cleaned.replace('\\)', ')')
+    
+    return cleaned
+
+
 def resolve_path_safely(path_string: str, allowed_dirs: Optional[List[Path]] = None) -> Optional[Path]:
     """
     パス文字列を安全に解決（パストラバーサル対策付き）

@@ -108,7 +108,7 @@ class MusashiPlugin(SchoolAnalyzerPlugin):
                 distance = section.start_pos - prev_section.end_pos
                 
                 # 武蔵特有の大問間距離チェック
-                if distance >= 500 or len(section.text) >= 1000:
+                if distance >= 500 or len(section.text or "") >= 1000:
                     filtered_sections.append(section)
         
         return filtered_sections

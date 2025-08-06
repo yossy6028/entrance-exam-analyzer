@@ -125,6 +125,13 @@ class YearDetector:
         years = sorted(detected_years.keys())
         confidence = self._calculate_confidence(years, detection_patterns)
         
+        # 年度が検出できない場合でもファイル名から推測した年度があれば使用
+        if not years and file_path:
+            file_years = self._detect_from_filename(file_path.name)
+            if file_years:
+                years = file_years
+                confidence = 0.5  # ファイル名のみからの推測なので信頼度は低め
+        
         if not years:
             raise YearDetectionError(text[:200], [p.name for p in self.patterns])
         
@@ -152,14 +159,34 @@ class YearDetector:
         
         # 個別の年度
         if not years:
-            for pattern in [r'20\d{2}', r'\d{2}']:
-                matches = re.findall(pattern, filename)
-                for match in matches:
-                    if len(match) == 2:
-                        year = self._two_digit_to_year(match)
-                    else:
-                        year = match
-                    
+            # 4桁年度
+            matches_4digit = re.findall(r'20\d{2}', filename)
+            for match in matches_4digit:
+                if self._is_valid_year(match) and match not in years:
+                    years.append(match)
+            
+            # 2桁年度（学校名の前後にある場合）
+            # パターン1: 学校名の後ろ（例: 開成25）
+            school_pattern_after = r'(?:開成|武蔵|桜蔭|桜陰|麻布|渋谷|渋渋)(\d{2})'
+            school_matches = re.findall(school_pattern_after, filename)
+            for match in school_matches:
+                year = self._two_digit_to_year(match)
+                if self._is_valid_year(year) and year not in years:
+                    years.append(year)
+            
+            # パターン2: 学校名の前（例: 25開成）
+            school_pattern_before = r'(\d{2})(?:開成|武蔵|桜蔭|桜陰|麻布|渋谷|渋渋)'
+            school_matches = re.findall(school_pattern_before, filename)
+            for match in school_matches:
+                year = self._two_digit_to_year(match)
+                if self._is_valid_year(year) and year not in years:
+                    years.append(year)
+            
+            # それでも見つからない場合は単独の2桁数字を試す
+            if not years:
+                matches_2digit = re.findall(r'(?:^|\D)(\d{2})(?:\D|$)', filename)
+                for match in matches_2digit:
+                    year = self._two_digit_to_year(match)
                     if self._is_valid_year(year) and year not in years:
                         years.append(year)
         
@@ -170,11 +197,11 @@ class YearDetector:
         try:
             num = int(two_digit)
             if Settings.MIN_YEAR_2DIGIT <= num <= Settings.MAX_YEAR_2DIGIT:
-                return f"20{two_digit:02d}"
+                return f"20{num:02d}"
             elif 90 <= num <= 99:
-                return f"19{two_digit}"
+                return f"19{num:02d}"
             else:
-                return f"20{two_digit:02d}"
+                return f"20{num:02d}"
         except ValueError:
             return two_digit
     

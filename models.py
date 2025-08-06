@@ -32,10 +32,13 @@ class Question:
 class Section:
     """大問（セクション）情報"""
     number: int
-    marker: str
-    text: str
-    start_pos: int
-    end_pos: int
+    title: str = ""
+    content: str = ""
+    question_count: int = 0
+    marker: Optional[str] = None
+    text: Optional[str] = None
+    start_pos: Optional[int] = None
+    end_pos: Optional[int] = None
     questions: List[Question] = field(default_factory=list)
 
 
@@ -54,7 +57,10 @@ class AnalysisResult:
     
     def get_question_count(self) -> int:
         """総設問数を取得"""
-        return len(self.questions)
+        if self.questions:
+            return len(self.questions)
+        else:
+            return sum(self.question_types.values())
     
     def get_section_count(self) -> int:
         """大問数を取得"""

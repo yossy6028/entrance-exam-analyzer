@@ -185,7 +185,7 @@ class SchoolAnalyzerPlugin(ABC):
         # 設問パターンでテキストを検索
         for q_type, patterns in self.question_patterns_compiled.items():
             for pattern in patterns:
-                matches = pattern.finditer(section.text)
+                matches = pattern.finditer(section.text or "")
                 
                 for match in matches:
                     # 文字数制限を抽出

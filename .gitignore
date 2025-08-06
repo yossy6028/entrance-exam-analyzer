@@ -55,7 +55,8 @@ data/backups/
 *.xls
 *.csv
 !requirements.txt
-!entrance_exam_database.xlsx
+# Keep sample database structure
+# !entrance_exam_database.xlsx
 
 # OCR outputs
 bunko_ocr_outputs/

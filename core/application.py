@@ -19,7 +19,7 @@ from modules.school_detector import SchoolDetector
 from modules.file_selector import FileSelector
 from modules.excel_manager import ExcelManager
 from modules.text_analyzer import TextAnalyzer
-from plugins.loader import get_plugin_loader
+from modules.universal_analyzer import UniversalAnalyzer
 from exceptions import (
     EntranceExamAnalyzerError,
     FileProcessingError,
@@ -57,9 +57,9 @@ class EntranceExamAnalyzer:
         self.year_detector = YearDetector()
         self.school_detector = SchoolDetector()
         self.file_selector = FileSelector()
-        self.text_analyzer = TextAnalyzer()
+        self.text_analyzer = TextAnalyzer(Settings.QUESTION_PATTERNS)
         self.excel_manager = ExcelManager()
-        self.plugin_loader = get_plugin_loader()
+        self.universal_analyzer = UniversalAnalyzer()
         
         # ディレクトリを確保
         ensure_directory_exists(Settings.OUTPUT_DIR)
@@ -192,9 +192,8 @@ class EntranceExamAnalyzer:
         """年度ごとに分析"""
         results = []
         
-        # 適切なプラグインを取得
-        plugin = self.plugin_loader.get_plugin_for_school(document.school_name)
-        print_info(f"使用プラグイン: {plugin.info.name}")
+        # 汎用分析器を使用
+        print_info(f"汎用分析システムを使用")
         
         if document.is_multi_year():
             # 複数年度の場合はテキストを分割
@@ -207,14 +206,14 @@ class EntranceExamAnalyzer:
             for i, (year, text) in enumerate(year_texts.items(), 1):
                 print_progress(i, len(year_texts), f"分析中: {year}年")
                 
-                result = plugin.analyze(text, document.school_name, year)
+                result = self.universal_analyzer.analyze(text, document.school_name, year)
                 results.append(result)
         else:
             # 単一年度の場合
             print_section("分析中...")
             year = document.years[0] if document.years else "不明"
             
-            result = plugin.analyze(document.content, document.school_name, year)
+            result = self.universal_analyzer.analyze(document.content, document.school_name, year)
             results.append(result)
         
         return results

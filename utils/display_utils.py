@@ -6,16 +6,22 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 
 
-# カラーコード定義
+# カラーコード定義（より明るい色に変更）
 class Colors:
     RESET = '\033[0m'
     BOLD = '\033[1m'
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    WHITE = '\033[97m'
+    RED = '\033[31m'      # 通常の赤（より見やすい）
+    GREEN = '\033[32m'    # 通常の緑（より見やすい）  
+    YELLOW = '\033[33m'   # 通常の黄色（より見やすい）
+    BLUE = '\033[34m'     # 通常の青
+    CYAN = '\033[36m'     # 通常のシアン（より見やすい）
+    WHITE = '\033[37m'    # 通常の白
+    BRIGHT_RED = '\033[91m'
+    BRIGHT_GREEN = '\033[92m'
+    BRIGHT_YELLOW = '\033[93m'
+    BRIGHT_BLUE = '\033[94m'
+    BRIGHT_CYAN = '\033[96m'
+    BRIGHT_WHITE = '\033[97m'
 
 
 def print_colored(text: str, color: str = Colors.WHITE, bold: bool = False) -> None:

@@ -33,20 +33,10 @@ class PluginLoader:
         self._load_custom_plugins()
     
     def _load_default_plugins(self):
-        """デフォルトプラグインを読み込み"""
-        default_plugins = [
-            'musashi_plugin.MusashiPlugin',
-            'kaisei_plugin.KaiseiPlugin',
-            'ouin_plugin.OuinPlugin',
-            'default_plugin.DefaultPlugin',
-        ]
-        
-        for plugin_path in default_plugins:
-            try:
-                module_name, class_name = plugin_path.rsplit('.', 1)
-                self._load_plugin(module_name, class_name)
-            except Exception as e:
-                print_warning(f"プラグイン {plugin_path} の読み込みに失敗: {e}")
+        """デフォルトプラグインを読み込み（互換性のため残す）"""
+        # 新しい汎用分析システムではプラグインは不要
+        # ただし互換性のためメソッドは残す
+        pass
     
     def _load_custom_plugins(self):
         """カスタムプラグインを読み込み（custom_plugins/ ディレクトリから）"""

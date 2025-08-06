@@ -143,17 +143,21 @@ class FileSelector:
         print_section(f"利用可能なファイル（{len(display_files)}件）")
         
         for i, (file_path, display_name) in enumerate(display_files, 1):
-            # 学校名で色分け
+            # 学校名で色分け（太字で見やすく）
             if '武蔵' in display_name:
-                color = Colors.CYAN
+                color = Colors.BRIGHT_CYAN
             elif '開成' in display_name:
-                color = Colors.GREEN
+                color = Colors.BRIGHT_GREEN
             elif '桜蔭' in display_name or '桜陰' in display_name:
-                color = Colors.YELLOW
+                color = Colors.BRIGHT_YELLOW
+            elif '渋谷' in display_name or '渋渋' in display_name:
+                color = Colors.BRIGHT_BLUE
+            elif '麻布' in display_name:
+                color = Colors.BRIGHT_RED
             else:
-                color = Colors.WHITE
+                color = Colors.BRIGHT_WHITE
             
-            print_colored(f"{i:3d}. {display_name}", color)
+            print_colored(f"{i:3d}. {display_name}", color, bold=True)
         
         # 選択
         while True:

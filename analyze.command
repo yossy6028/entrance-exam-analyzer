@@ -20,7 +20,7 @@ echo ""
 echo "--------------------------------------------------"
 
 # Python実行
-python3 simple_analyzer.py "$@"
+python3 main.py "$@"
 
 # 終了時の待機
 echo ""
