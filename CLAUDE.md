@@ -4,15 +4,16 @@
 このプロジェクトは国語の入試問題PDFから出題傾向と出典を自動抽出・分析するシステムです。
 
 ## 重要な制約事項
-- OCRツールはBunkoOCRを使用（Google Cloud Vision APIは使用しない）
-- 縦書きPDFの処理に特化
+- OCRツールはGoogle Cloud Vision APIを使用
+- 縦書きPDFの処理に対応
 - 出力はExcel形式
 
 ## 技術スタック
 - Python 3.8+
-- BunkoOCR（macOSアプリケーション）
+- Google Cloud Vision API
 - pandas, openpyxl
 - 画像処理: PIL/Pillow
+- pdf2image（PDF→画像変換）
 
 ## 要件定義書・Todoリスト
 - `/requirements_doc.md`に詳細な要件定義を保管
@@ -66,35 +67,25 @@
 - 不要なシートや列を作成しない
 - シンプルな構造を維持する
 
-## OCRシステムの移行について
+## OCRシステム
 
-### BunkoOCRへの移行（2025年8月）
-- Google Cloud Vision APIから日本語特化のBunkoOCRへ移行
-- 縦書き文書の認識精度が大幅に向上
-- 特に古い入試問題（2015年など）でVision APIでは認識困難だった箇所も正確に読み取り可能
-
-### 新しい統合ワークフロー（2025年8月3日更新）
-1. **アプリケーション起動**: `python3 run_app.py`
-2. **学校・年度を指定**: GUIで学校名と年度を選択
-3. **PDFファイル選択**: ファイルブラウザから該当PDFを選択
-4. **BunkoOCR起動**: 自動的にBunkoOCRが起動し、選択したPDFが開く
-5. **OCR処理**: ユーザーが手動でOCRボタンをクリック
-6. **自動分析**: OCR完了後、自動的にテキスト分析を実行
-7. **Excel記録**: 分析結果を自動的にデータベースに保存
+### Google Cloud Vision API
+- 高精度な日本語OCR機能
+- 縦書き文書の認識に対応
+- 文書構造の自動解析
+- Application Default Credentials (ADC) を使用した認証
 
 ### 使い方
 ```bash
+# 認証設定（初回のみ）
+gcloud auth application-default login
+
+# アプリケーション実行
 cd /Users/yoshiikatsuhiko/entrance_exam_analyzer
-python3 run_app.py
+python3 main.py
 ```
 
-### 旧ワークフロー（手動）
-1. PDFファイルをBunkoOCRアプリで開く
-2. OCR処理を実行（手動操作）
-3. 結果をiCloudフォルダから自動取得
-4. テキスト分析とExcel出力は既存のPythonスクリプトで処理
-
 ### 注意事項
-- `.env`ファイルのGoogle Cloud認証情報は不要となったが、互換性のため残存
-- Vision API関連のインポートがあるスクリプトは動作しない
-- 新規分析にはBunkoOCR用のスクリプト（`analyze_*_bunko.py`）を使用すること
+- Google Cloudプロジェクトの設定が必要
+- Vision API の有効化が必要
+- 適切な権限設定が必要
