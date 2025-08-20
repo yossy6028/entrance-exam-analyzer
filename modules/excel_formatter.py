@@ -86,7 +86,7 @@ class ExcelFormatter:
         '備考'
     ]
     
-    def __init__(self, excel_path: str = "entrance_exam_database.xlsx"):
+    def __init__(self, excel_path: str = "/Users/yoshiikatsuhiko/Desktop/01_仕事 (Work)/オンライン家庭教師資料/過去問/entrance_exam_database.xlsx"):
         """
         初期化
         
@@ -224,7 +224,7 @@ class ExcelFormatter:
             # Excelファイルに書き込み
             with pd.ExcelWriter(self.excel_path, engine='openpyxl') as writer:
                 for sheet_name, sheet_df in sheets.items():
-                    sheet_df.to_excel(writer, sheet_name=sheet_name, index=False)
+                    sheet_df.to_excel(writer, sheet_name=sheet_name, index=True)
             
             print(f"データを保存しました: {self.excel_path}")
             return True

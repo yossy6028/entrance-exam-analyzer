@@ -1,0 +1,200 @@
+{
+  "total_characters": 0,
+  "total_questions": 0,
+  "sections": [
+    {
+      "number": 1,
+      "source": null,
+      "start_pos": 0,
+      "end_pos": 0,
+      "characters": 0,
+      "questions": [],
+      "genre": "随筆",
+      "theme": "人間関係・成長"
+    }
+  ],
+  "question_types": {
+    "選択": 0,
+    "記述": 0,
+    "抜き出し": 0,
+    "漢字・語句": 0
+  },
+  "validation": {
+    "valid": true,
+    "sections": [
+      {
+        "section_number": 1,
+        "question_count": 0,
+        "is_continuous": true,
+        "warnings": []
+      }
+    ],
+    "warnings": [],
+    "suggestions": []
+  },
+  "layout_info": {
+    "total_pages": 32,
+    "page_layouts": [
+      {
+        "page": 0,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 1,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 2,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 3,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 4,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 5,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 6,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 7,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 8,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 9,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 10,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 11,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 12,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 13,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 14,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 15,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 16,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 17,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 18,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 19,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 20,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 21,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 22,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 23,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 24,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 25,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 26,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 27,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 28,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 29,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 30,
+        "layout": "empty",
+        "blocks": 0
+      },
+      {
+        "page": 31,
+        "layout": "empty",
+        "blocks": 0
+      }
+    ]
+  }
+}

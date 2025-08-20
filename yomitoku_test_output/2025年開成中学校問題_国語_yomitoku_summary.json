@@ -1,0 +1,28 @@
+{
+  "file_name": "2025年開成中学校問題_国語.pdf",
+  "total_pages": 17,
+  "text_length": 10116,
+  "exam_structure": {
+    "has_multiple_sections": true,
+    "sections": [
+      "一 ",
+      "二 ",
+      "三 ",
+      "二 ",
+      "三 ",
+      "四 "
+    ],
+    "question_count": 6,
+    "has_answer_choices": true,
+    "themes": [
+      "人間関係・成長",
+      "自然・環境",
+      "社会・文化",
+      "科学・技術"
+    ],
+    "source_info": {
+      "title": "縁の鳴る丘"
+    }
+  },
+  "processing_time": 116.50194025039673
+}

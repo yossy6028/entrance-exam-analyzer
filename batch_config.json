@@ -5,7 +5,6 @@
     "timeout_seconds": 60,
     "auto_detect_groups": true,
     "file_patterns": {
-      "bunko_ocr": "text*.txt",
       "general": "*.txt"
     }
   },

@@ -21,6 +21,7 @@ from utils.display_utils import (
 )
 from plugins.loader import get_plugin_loader
 from modules.excel_manager import ExcelManager
+from modules.text_file_manager import TextFileManager
 
 
 class CLI:
@@ -66,6 +67,19 @@ class CLI:
             type=str,
             default=Settings.DEFAULT_DB_FILENAME,
             help='出力先Excelファイル（デフォルト: %(default)s）'
+        )
+        
+        parser.add_argument(
+            '--text-output',
+            '-t',
+            action='store_true',
+            help='テキストファイルとして保存（過去問フォルダに年度別・学校別で保存）'
+        )
+        
+        parser.add_argument(
+            '--text-output-dir',
+            type=str,
+            help='テキストファイルの保存先ディレクトリを指定'
         )
         
         parser.add_argument(
@@ -209,9 +223,18 @@ class CLI:
             self.app.excel_manager.config.db_filename = args.output
             self.app.excel_manager.db_path = Path(args.output)
         
+        # テキスト出力設定（デフォルトでTrue）
+        self.app.config['text_output'] = True  # 常にテキスト出力
+        self.app.config['excel_output'] = False  # Excel出力はデフォルトでオフ
+        
+        # テキスト出力ディレクトリ設定
+        if args.text_output_dir:
+            self.app.config['text_output_dir'] = args.text_output_dir
+        
         # ドライラン設定
         if args.dry_run:
             self.app.config['dry_run'] = True
+            self.app.config['skip_confirmation'] = True  # dry-runモードでは確認をスキップ
     
     def _run_single(self, args) -> int:
         """単一ファイルを処理"""

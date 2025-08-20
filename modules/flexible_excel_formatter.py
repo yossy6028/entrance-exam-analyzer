@@ -7,6 +7,10 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 import os
 import shutil
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).parent.parent))
+from config.app_config import get_config
 
 
 class FlexibleExcelFormatter:
@@ -21,19 +25,25 @@ class FlexibleExcelFormatter:
         '総設問数',
     ]
     
-    # 大問関連の列テンプレート（最大6問まで対応）
-    SECTION_TEMPLATE = [
-        '大問{}_ジャンル',  # 小説・物語、論説文、随筆、説明文、詩、韻文
-        '大問{}_テーマ',
-        '大問{}_著者',
-        '大問{}_作品',
-        '大問{}_出版社',
-        '大問{}_文字数',
-        '大問{}_設問数',
-        '大問{}_内容概要',  # 詳細な内容説明
-        '大問{}_設問詳細',  # 各設問の内容
-        '大問{}_出題形式',  # 本文のみ、本文＋資料、会話文形式など
-        '大問{}_特殊要素',  # 図表、グラフ、写真などの有無
+    # 大問関連の列テンプレート（最大10問まで対応）
+    # 文章問題用（文章1〜5）
+    TEXT_SECTION_TEMPLATE = [
+        '文章{}_出題形式',  # 記述、選択、抜き出しなど
+        '文章{}_出典',      # 著者名と作品名
+        '文章{}_文字数',    # 本文の文字数
+        '文章{}_ジャンル',  # 小説・物語、論説文、随筆など
+        '文章{}_テーマ',    # 主題やトピック
+        '文章{}_設問数',    # 設問数
+        '文章{}_選択問題数',   # 選択式の問題数
+        '文章{}_記述問題数',   # 記述式の問題数
+        '文章{}_抜き出し問題数',  # 抜き出し問題数
+        '文章{}_その他問題数',  # その他の問題数
+    ]
+    
+    # その他の問題用（その他1〜5）
+    OTHER_SECTION_TEMPLATE = [
+        'その他{}_出題形式',  # 漢字、語句、文法など
+        'その他{}_設問数',    # 設問数
     ]
     
     # 設問タイプ（拡張版）
@@ -72,27 +82,41 @@ class FlexibleExcelFormatter:
         '備考',
     ]
     
-    def __init__(self, excel_path: str = "entrance_exam_database.xlsx", max_sections: int = 6):
+    def __init__(self, excel_path: str = None, max_text_sections: int = 5, max_other_sections: int = 5):
         """
         初期化
         
         Args:
-            excel_path: Excelファイルのパス
-            max_sections: 対応する最大大問数（デフォルト6）
+            excel_path: Excelファイルのパス（Noneの場合はデフォルトパスを使用）
+            max_text_sections: 対応する最大文章問題数（デフォルト5）
+            max_other_sections: 対応する最大その他問題数（デフォルト5）
         """
-        self.excel_path = excel_path
-        self.max_sections = max_sections
+        config = get_config()
         
-        # 動的に列を生成
+        # デフォルトの出力先を設定
+        if excel_path is None:
+            excel_path = str(config.get_excel_path())
+        
+        self.excel_path = excel_path
+        self.max_text_sections = max_text_sections
+        self.max_other_sections = max_other_sections
+
+        
+        # 列定義を生成
         self.columns = self._generate_columns()
     
     def _generate_columns(self) -> List[str]:
         """列定義を動的に生成"""
         columns = self.BASE_COLUMNS.copy()
         
-        # 大問の列を追加（最大数まで）
-        for i in range(1, self.max_sections + 1):
-            for template in self.SECTION_TEMPLATE:
+        # 文章問題の列を追加
+        for i in range(1, self.max_text_sections + 1):
+            for template in self.TEXT_SECTION_TEMPLATE:
+                columns.append(template.format(i))
+        
+        # その他問題の列を追加
+        for i in range(1, self.max_other_sections + 1):
+            for template in self.OTHER_SECTION_TEMPLATE:
                 columns.append(template.format(i))
         
         # 設問タイプと追加情報を追加
@@ -130,32 +154,74 @@ class FlexibleExcelFormatter:
         row_data['大問数'] = len(analysis_result.get('sections', []))
         row_data['総設問数'] = analysis_result.get('total_questions', 0)
         
-        # 各大問の情報を設定
+        # 各大問の情報を分類して設定
         sections = analysis_result.get('sections', [])
-        for i, section in enumerate(sections[:self.max_sections], 1):
-            prefix = f'大問{i}_'
+        text_section_idx = 1  # 文章問題のインデックス
+        other_section_idx = 1  # その他問題のインデックス
+        
+        for section in sections:
+            # 文章問題かその他の問題かを判定
+            genre = section.get('genre', '').lower()
+            is_text_section = any(keyword in genre for keyword in 
+                                 ['小説', '物語', '論説', '評論', '随筆', 'エッセイ', '説明文'])
             
-            # 出典情報
-            if section.get('source'):
-                row_data[f'{prefix}著者'] = section['source'].get('author')
-                row_data[f'{prefix}作品'] = section['source'].get('work')
-                row_data[f'{prefix}出版社'] = section['source'].get('publisher')
-            
-            # 基本情報
-            row_data[f'{prefix}ジャンル'] = section.get('genre', '不明')
-            row_data[f'{prefix}テーマ'] = section.get('theme', '不明')
-            row_data[f'{prefix}文字数'] = section.get('characters', 0)
-            row_data[f'{prefix}設問数'] = len(section.get('questions', []))
-            
-            # 追加情報
-            if section.get('content_summary'):
-                row_data[f'{prefix}内容概要'] = section['content_summary']
-            if section.get('question_details'):
-                row_data[f'{prefix}設問詳細'] = section['question_details']
-            if section.get('format'):
-                row_data[f'{prefix}出題形式'] = section['format']
-            if section.get('special_elements'):
-                row_data[f'{prefix}特殊要素'] = section['special_elements']
+            if is_text_section and text_section_idx <= self.max_text_sections:
+                # 文章問題として処理
+                prefix = f'文章{text_section_idx}_'
+                
+                # 出題形式（設問タイプの集約）
+                questions = section.get('questions', [])
+                question_types = []
+                for q in questions:
+                    q_type = q.get('type', '不明')
+                    if q_type not in question_types:
+                        question_types.append(q_type)
+                row_data[f'{prefix}出題形式'] = '、'.join(question_types) if question_types else '不明'
+                
+                # 出典（著者と作品）
+                source = section.get('source', {})
+                author = source.get('author', '')
+                work = source.get('work', '')
+                if author and work:
+                    row_data[f'{prefix}出典'] = f'{author}「{work}」'
+                elif author:
+                    row_data[f'{prefix}出典'] = author
+                elif work:
+                    row_data[f'{prefix}出典'] = work
+                else:
+                    row_data[f'{prefix}出典'] = '不明'
+                
+                # 文字数
+                row_data[f'{prefix}文字数'] = section.get('characters', 0)
+                
+                # ジャンルとテーマ
+                row_data[f'{prefix}ジャンル'] = section.get('genre', '不明')
+                row_data[f'{prefix}テーマ'] = section.get('theme', '不明')
+                
+                # 設問数
+                row_data[f'{prefix}設問数'] = len(questions)
+                
+                text_section_idx += 1
+                
+            elif not is_text_section and other_section_idx <= self.max_other_sections:
+                # その他の問題として処理
+                prefix = f'その他{other_section_idx}_'
+                
+                # 出題形式（漢字、語句、文法など）
+                if '漢字' in genre or '語句' in genre:
+                    row_data[f'{prefix}出題形式'] = genre
+                else:
+                    # 設問内容から判断
+                    questions = section.get('questions', [])
+                    if questions:
+                        row_data[f'{prefix}出題形式'] = questions[0].get('type', '不明')
+                    else:
+                        row_data[f'{prefix}出題形式'] = '不明'
+                
+                # 設問数
+                row_data[f'{prefix}設問数'] = len(section.get('questions', []))
+                
+                other_section_idx += 1
         
         # 設問タイプ別集計（より詳細に）
         question_types = analysis_result.get('question_types', {})
@@ -222,9 +288,14 @@ class FlexibleExcelFormatter:
             成功した場合True
         """
         try:
+            # 出力先ディレクトリを作成
+            output_dir = os.path.dirname(self.excel_path)
+            if output_dir:
+                os.makedirs(output_dir, exist_ok=True)
+            
             # バックアップ作成
             if backup and os.path.exists(self.excel_path):
-                backup_dir = "data/backups"
+                backup_dir = os.path.join(output_dir, "backups")
                 os.makedirs(backup_dir, exist_ok=True)
                 backup_path = os.path.join(
                     backup_dir,
@@ -279,7 +350,7 @@ class FlexibleExcelFormatter:
                 for sheet_name, sheet_df in sheets.items():
                     # NaNを空文字に変換してから保存
                     sheet_df = sheet_df.fillna('')
-                    sheet_df.to_excel(writer, sheet_name=sheet_name, index=False)
+                    sheet_df.to_excel(writer, sheet_name=sheet_name, index=True)
             
             print(f"データを保存しました: {self.excel_path}")
             return True

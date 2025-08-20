@@ -1,0 +1,1 @@
+<img src="figures/seiko_output_page_032_p1_figure_0.png" width="200px"><br>

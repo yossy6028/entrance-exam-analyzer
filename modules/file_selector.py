@@ -61,7 +61,7 @@ class FileSelector:
                 return result
         
         # インタラクティブ選択
-        print_header("テキストファイル選択", 60)
+        print_header("ファイル選択（テキスト/PDF）", 60)
         
         # 選択方法を提示
         print_section("選択方法")
@@ -126,7 +126,7 @@ class FileSelector:
         all_files = self._find_all_text_files()
         
         if not all_files:
-            print_warning("テキストファイルが見つかりませんでした。")
+            print_warning("テキストファイルまたはPDFファイルが見つかりませんでした。")
             return FileSelectionResult(
                 selected_file=None,
                 selection_method='list',
@@ -154,8 +154,12 @@ class FileSelector:
                 color = Colors.BRIGHT_BLUE
             elif '麻布' in display_name:
                 color = Colors.BRIGHT_RED
-            else:
+            elif '聖光' in display_name:
+                color = Colors.BRIGHT_MAGENTA
+            elif '早' in display_name and '実' in display_name:
                 color = Colors.BRIGHT_WHITE
+            else:
+                color = Colors.WHITE
             
             print_colored(f"{i:3d}. {display_name}", color, bold=True)
         
@@ -193,7 +197,7 @@ class FileSelector:
     def _select_from_drag_drop(self) -> FileSelectionResult:
         """ドラッグ＆ドロップで選択"""
         print_section("ドラッグ＆ドロップ")
-        print("テキストファイルをこのウィンドウにドラッグして、Enterキーを押してください。")
+        print("テキストファイルまたはPDFファイルをこのウィンドウにドラッグして、Enterキーを押してください。")
         print("（キャンセルする場合は何も入力せずにEnter）")
         
         try:
@@ -242,10 +246,12 @@ class FileSelector:
             initial_dir = str(self.search_dirs[0]) if self.search_dirs else str(Path.home())
             
             file_path = filedialog.askopenfilename(
-                title="テキストファイルを選択",
+                title="ファイルを選択",
                 initialdir=initial_dir,
                 filetypes=[
                     ("テキストファイル", "*.txt"),
+                    ("PDFファイル", "*.pdf"),
+                    ("すべてのファイル", "*.*"),
                     ("すべてのファイル", "*.*")
                 ]
             )
@@ -260,7 +266,7 @@ class FileSelector:
                         selection_method='gui'
                     )
                 else:
-                    print_error("選択されたファイルは有効なテキストファイルではありません。")
+                    print_error("選択されたファイルは有効なテキストファイルまたはPDFファイルではありません。")
             
             return FileSelectionResult(
                 selected_file=None,
@@ -279,7 +285,7 @@ class FileSelector:
     def _select_from_manual_input(self) -> FileSelectionResult:
         """手動でパスを入力"""
         print_section("手動入力")
-        print("テキストファイルのパスを入力してください。")
+        print("テキストファイルまたはPDFファイルのパスを入力してください。")
         print("（相対パスまたは絶対パス）")
         
         try:
@@ -313,7 +319,7 @@ class FileSelector:
             )
     
     def _find_all_text_files(self) -> List[Path]:
-        """すべてのテキストファイルを検索"""
+        """すべてのテキストファイルとPDFファイルを検索"""
         all_files = []
         
         for search_dir in self.search_dirs:
@@ -321,7 +327,10 @@ class FileSelector:
                 continue
             
             # 再帰的に検索
-            files = find_files_recursive(search_dir, "*.txt", max_depth=5)
+            # テキストファイルとPDFファイルを検索
+            txt_files = find_files_recursive(search_dir, "*.txt", max_depth=5)
+            pdf_files = find_files_recursive(search_dir, "*.pdf", max_depth=5)
+            files = txt_files + pdf_files
             
             # 有効なファイルのみフィルタ
             valid_files = [f for f in files if is_valid_text_file(f)]
@@ -358,6 +367,8 @@ class FileSelector:
             '渋谷': ['渋谷', '渋渋', 'shibuya'],
             '女子学院': ['女子学院', 'jg'],
             '雙葉': ['雙葉', '双葉', 'futaba'],
+            '聖光学院': ['聖光', 'seiko'],
+            '早稲田実業': ['早実', '早稲田実', 'waseda'],
         }
         
         for school, keywords in school_keywords.items():
@@ -398,6 +409,6 @@ class FileSelector:
             raise PathTraversalError(cleaned_path)
         
         if not is_valid_text_file(path):
-            raise InvalidFileError(str(path), "有効なテキストファイルではありません")
+            raise InvalidFileError(str(path), "有効なテキストファイルまたはPDFファイルではありません")
         
         return path

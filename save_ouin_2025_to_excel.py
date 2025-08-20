@@ -65,7 +65,7 @@ def main():
     
     # Excelフォーマッターを初期化
     formatter = FlexibleExcelFormatter(
-        excel_path="entrance_exam_database.xlsx"
+        excel_path="/Users/yoshiikatsuhiko/Desktop/01_仕事 (Work)/オンライン家庭教師資料/過去問/entrance_exam_database.xlsx"
     )
     
     # 追加情報

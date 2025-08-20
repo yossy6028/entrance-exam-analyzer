@@ -130,16 +130,30 @@ class Settings:
     
     # Excel設定
     EXCEL_ENGINE = 'openpyxl'
-    DEFAULT_DB_FILENAME = "entrance_exam_database.xlsx"
+    # デフォルトパスは環境変数またはapp_configから取得
+    DEFAULT_DB_FILENAME = None  # app_config.pyで動的に設定
     
     @classmethod
     def get_search_directories(cls) -> List[Path]:
         """検索対象ディレクトリのリストを返す"""
-        return [
+        import os
+        directories = [
             Path.cwd(),
             Path.home() / "Desktop",
-            Path.home() / "Desktop/01_仕事 (Work)/オンライン家庭教師資料/過去問",
         ]
+        
+        # 環境変数で追加ディレクトリを指定可能
+        if os.getenv('ENTRANCE_EXAM_SEARCH_DIRS'):
+            for dir_str in os.getenv('ENTRANCE_EXAM_SEARCH_DIRS').split(':'):
+                directories.append(Path(dir_str))
+        else:
+            # デフォルトの検索パス（ユーザー固有情報を含まない）
+            directories.extend([
+                Path.home() / "Desktop" / "01_仕事 (Work)" / "オンライン家庭教師資料" / "過去問",
+                Path.home() / "Desktop" / "過去問のエイリアス",
+            ])
+        
+        return directories
     
     @classmethod
     def get_allowed_directories(cls) -> List[Path]:

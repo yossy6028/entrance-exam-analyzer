@@ -39,7 +39,7 @@ def main():
         
         if success:
             print_success("\n✅ 分析が完了しました！")
-            print("結果は entrance_exam_database.xlsx に保存されました。")
+            print("結果は /Users/yoshiikatsuhiko/Desktop/01_仕事 (Work)/オンライン家庭教師資料/過去問/entrance_exam_database.xlsx に保存されました。")
             return 0
         else:
             return 1

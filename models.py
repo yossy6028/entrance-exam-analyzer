@@ -40,6 +40,9 @@ class Section:
     start_pos: Optional[int] = None
     end_pos: Optional[int] = None
     questions: List[Question] = field(default_factory=list)
+    section_type: str = ""  # 語句・知識、文章読解など
+    is_text_problem: bool = True  # 文章問題かどうか
+    char_count: Optional[int] = None  # 文字数（語句問題の場合はNone）
 
 
 @dataclass
@@ -59,8 +62,19 @@ class AnalysisResult:
         """総設問数を取得"""
         if self.questions:
             return len(self.questions)
-        else:
-            return sum(self.question_types.values())
+        elif self.sections:
+            # セクションごとの設問数を合計
+            total = 0
+            for section in self.sections:
+                if hasattr(section, 'question_count'):
+                    total += section.question_count
+                elif hasattr(section, 'questions'):
+                    total += len(section.questions)
+            if total > 0:
+                return total
+        
+        # フォールバック: question_typesの合計
+        return sum(self.question_types.values())
     
     def get_section_count(self) -> int:
         """大問数を取得"""
@@ -79,6 +93,7 @@ class ExamDocument:
     years: List[str]
     content: str
     encoding: str = 'utf-8'
+    metadata: Optional[Dict[str, Any]] = None  # PDFのOCR結果など追加情報
     
     def is_multi_year(self) -> bool:
         """複数年度を含むかチェック"""
@@ -104,10 +119,11 @@ class YearDetectionResult:
 @dataclass
 class ExcelExportConfig:
     """Excel出力設定"""
-    db_filename: str = "entrance_exam_database.xlsx"
+    db_filename: str = None  # app_config.pyで動的に設定
     create_backup: bool = True
     include_timestamp: bool = True
     sheet_name_format: str = "{school_name}"
+    use_new_format: bool = True  # 新形式（文章1、文章2、その他1、その他2）を使用
     
     
 @dataclass

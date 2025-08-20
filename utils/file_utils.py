@@ -10,13 +10,13 @@ from typing import Optional, List
 
 def is_valid_text_file(file_path: Path) -> bool:
     """
-    有効なテキストファイルかチェック
+    有効なテキストファイルまたはPDFファイルかチェック
     
     Args:
         file_path: チェック対象のファイルパス
     
     Returns:
-        有効なテキストファイルの場合True
+        有効なテキストファイルまたはPDFファイルの場合True
     """
     if not file_path.exists():
         return False
@@ -24,7 +24,8 @@ def is_valid_text_file(file_path: Path) -> bool:
     if not file_path.is_file():
         return False
     
-    if file_path.suffix.lower() != '.txt':
+    # .txtまたは.pdfファイルを受け入れる
+    if file_path.suffix.lower() not in ['.txt', '.pdf']:
         return False
     
     # ファイルサイズチェック（0バイトファイルを除外）
@@ -168,7 +169,7 @@ def resolve_path_safely(path_string: str, allowed_dirs: Optional[List[Path]] = N
 
 def find_files_recursive(
     directory: Path,
-    pattern: str = "*.txt",
+    pattern: str = "*.[tp][xd][tf]",  # *.txt と *.pdf にマッチ
     max_depth: Optional[int] = None
 ) -> List[Path]:
     """
@@ -187,31 +188,35 @@ def find_files_recursive(
     
     files = []
     
-    if max_depth is None:
-        # 深度制限なし
-        files = list(directory.rglob(pattern))
-    else:
-        # 深度制限あり
-        current_depth = 0
-        dirs_to_search = [directory]
-        
-        while dirs_to_search and current_depth <= max_depth:
-            next_dirs = []
-            for d in dirs_to_search:
-                # 現在のディレクトリのファイルを追加
-                files.extend(d.glob(pattern))
-                
-                if current_depth < max_depth:
-                    # サブディレクトリを次の検索対象に追加
-                    next_dirs.extend([x for x in d.iterdir() if x.is_dir()])
+    # .txtと.pdfの両方を検索
+    patterns = ["*.txt", "*.pdf"] if pattern == "*.[tp][xd][tf]" else [pattern]
+    
+    for pat in patterns:
+        if max_depth is None:
+            # 深度制限なし
+            files.extend(list(directory.rglob(pat)))
+        else:
+            # 深度制限あり
+            current_depth = 0
+            dirs_to_search = [directory]
             
-            dirs_to_search = next_dirs
-            current_depth += 1
+            while dirs_to_search and current_depth <= max_depth:
+                next_dirs = []
+                for d in dirs_to_search:
+                    # 現在のディレクトリのファイルを追加
+                    files.extend(d.glob(pat))
+                    
+                    if current_depth < max_depth:
+                        # サブディレクトリを次の検索対象に追加
+                        next_dirs.extend([x for x in d.iterdir() if x.is_dir()])
+                
+                dirs_to_search = next_dirs
+                current_depth += 1
     
     return sorted(files)
 
 
-def get_recent_files(directory: Path, pattern: str = "*.txt", limit: int = 10) -> List[Path]:
+def get_recent_files(directory: Path, pattern: str = "*.[tp][xd][tf]", limit: int = 10) -> List[Path]:
     """
     最近更新されたファイルを取得
     

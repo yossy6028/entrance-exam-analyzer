@@ -28,13 +28,17 @@ logger = logging.getLogger(__name__)
 class BatchAnalyzer:
     """複数の入試問題を一括分析するクラス"""
     
-    def __init__(self, excel_path: str = "entrance_exam_database.xlsx"):
+    def __init__(self, excel_path: str = None):
         """
         初期化
         
         Args:
-            excel_path: 出力先のExcelファイルパス
+            excel_path: 出力先のExcelファイルパス（Noneの場合はデフォルトパスを使用）
         """
+        # デフォルトの出力先を設定
+        if excel_path is None:
+            excel_path = "/Users/yoshiikatsuhiko/Desktop/01_仕事 (Work)/オンライン家庭教師資料/過去問/entrance_exam_database.xlsx"
+            
         self.excel_path = excel_path
         self.extractor = FinalContentExtractor()
         self.formatter = FlexibleExcelFormatter(excel_path)
@@ -400,8 +404,8 @@ def main():
     )
     parser.add_argument(
         '--output',
-        default='entrance_exam_database.xlsx',
-        help='出力Excelファイル（デフォルト: entrance_exam_database.xlsx）'
+        default='/Users/yoshiikatsuhiko/Desktop/01_仕事 (Work)/オンライン家庭教師資料/過去問/entrance_exam_database.xlsx',
+        help='出力Excelファイル（デフォルト: /Users/yoshiikatsuhiko/Desktop/01_仕事 (Work)/オンライン家庭教師資料/過去問/entrance_exam_database.xlsx）'
     )
     parser.add_argument(
         '--no-save',
