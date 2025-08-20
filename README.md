@@ -25,8 +25,8 @@
 
 ```bash
 # リポジトリのクローン
-git clone https://github.com/yourusername/entrance-exam-analyzer.git
-cd entrance-exam-analyzer
+git clone https://github.com/yourusername/japanese-entrance-exam-analyzer.git
+cd japanese-entrance-exam-analyzer
 
 # 依存関係のインストール
 pip install -r requirements.txt
